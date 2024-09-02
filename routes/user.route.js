@@ -13,6 +13,3 @@ router.route('/suggested').get(isAuthenticated, getSuggesstions);
 router.route('/followorunfollow/:id').post(isAuthenticated, followOrUnfollow);
 
 export default router;
-
-
-
