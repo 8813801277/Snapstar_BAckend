@@ -214,6 +214,7 @@ export const getProfile = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 // //controller to edit profile of user
 
 // export const editProfile = async (req, res) => {
@@ -311,6 +312,105 @@ export const getProfile = async (req, res) => {
 //         })
 //     }
 // }
+=======
+//controller to edit profile of user
+
+export const editProfile = async (req, res) => {
+    try {
+        //we have stored user id in req while authenticating the user
+        const userId = req.id;
+        const {
+            bio,
+            gender
+        } = req.body;
+        const profilePicture = req.file; //fetching profilePicture
+        let cloudResponse;
+
+        if (profilePicture) {
+            const fileUri = getDataUri(profilePicture);
+            cloudResponse = await cloudinary.uploader.upload(fileUri); //uploading file to cloudinary
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            console.log("User not found for updating the post");
+
+            return res.status(404).json({ //status 404 means :- not found
+                success: false,
+                message: "User not found"
+            })
+        }
+        if (bio) {
+            user.bio = bio;
+        }
+
+        if (gender) {
+            user.gender = gender;
+        }
+
+        if (profilePicture) {
+            user.profilePicture = cloudResponse.secure_url; //secure_url contains the link of our image
+        }
+
+        await user.save(); //saving the update user
+
+        console.log("User has been updated successfully");
+
+        res.status(200).json({
+            success: true,
+            message: "Us4r profile updated",
+            user
+        })
+    } catch (err) {
+        console.log("An error while Updating the profile of user");
+        console.error(err.message);
+
+        res.status(500).json({
+            succes: false,
+            message: "unable to update the profile of user"
+        })
+    }
+}
+
+//contoller for suggestions : suggested users
+
+export const getSuggesstions = async (req, res) => {
+    try {
+        const suggestedUsers = await User.find({
+            _id: {
+                $ne: req.id
+            }
+        }).select("password"); //gives users that has id not equal to request id without password
+
+        if (!suggestedUsers) {
+            console.log("unable to find suggessted users");
+
+            return res.status(400).json({
+                success: false,
+                message: "Don't have users, So can't find suggessted users"
+            })
+        }
+
+        console.log("Successfully find suggessted users");
+
+        return res.status(200).json({
+            succes: true,
+            message: "Find suggessted Users",
+            suggestedUsers
+        })
+    } catch (err) {
+        console.log("AN eror has occured in suggessted users");
+        console.error(err.message);
+
+        res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "An error occured while finding suggessted users"
+        })
+    }
+}
+>>>>>>> 537ae0db26330debd07d366b6c0a6c4de3ffa7c6
 
 //controller for follow anmd unfollow
 
